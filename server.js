@@ -126,7 +126,7 @@ app.post('/api/me/saved', async(req, res) => {
             RETURNING *;
         `,
         [req.userId, req.body.name, req.body.images[1], req.body.classifications[0].genre.name, req.body.dates.start.localDate, req.body.url, req.body.venues[0].city.name, req.body.venues[0].state.name, req.body.priceRanges[0].min, req.body.priceRanges[0].max, req.body.venues[0].location.longitude, req.body.venues[0].location.latitude]);
-        res.json(newFavorite.rows[0]);
+        res.json(newSaved.rows[0]);
     }
     catch (err) {
         console.log(err);
