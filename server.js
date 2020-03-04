@@ -57,6 +57,7 @@ app.use('/api/me', ensureAuth);
 app.get('/api/concerts', async(req, res) => {
     const keyword = req.query.keyword ? req.query.keyword : '';
     const city = req.query.city ? req.query.city : '';
+    console.log(req.query);
     const data = await request.get(`https://app.ticketmaster.com/discovery/v2/events.json?countryCode=US&keyword=${keyword}&apikey=${process.env.TICKETMASTER_KEY}&sort=date,asc&city=${city}&classificationName=Music`);
     res.json(data.body);
 });
