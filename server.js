@@ -123,12 +123,13 @@ app.get('/api/me/saved', async(req, res) => {
 
 app.post('/api/me/saved', async(req, res) => {
     try {
+        console.log(req.body);
         const newSaved = await client.query(`
             INSERT into saved (user_id, name, images, genre, start_date, tickets_url, city, state, price_min, price_max, lat, long)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
             RETURNING *;
         `,
-        [req.userId, req.body.name, req.body.images[1], req.body.classifications[0].genre.name, req.body.dates.start.localDate, req.body.url, req.body.venues[0].city.name, req.body.venues[0].state.name, req.body.priceRanges[0].min, req.body.priceRanges[0].max, req.body.venues[0].location.longitude, req.body.venues[0].location.latitude]);
+        [req.userId, req.body.name, req.body.images, req.body.genre, req.body.start_date, req.body.tickets_url, req.body.city, req.body.state, req.body.price_min, req.body.price_max, req.body.longitude, req.body.latitude]);
         res.json(newSaved.rows[0]);
     }
     catch (err) {
