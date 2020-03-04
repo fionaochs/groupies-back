@@ -134,7 +134,7 @@ app.post('/api/me/saved', async(req, res) => {
     }
     catch (err) {
         console.log(err);
-        if (err.constraint === 'favorites_user_id_external_id_key') { res.send('Already in saved!'); }
+        if (err.constraint === 'saved_user_id_tm_id_key') { res.send('Already in saved!'); }
         res.status(500).json({
             error: err.message || err
         });
