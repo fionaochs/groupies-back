@@ -40,6 +40,7 @@
   },
   "devDependencies": {},
   "directories": {
-    "lib": "lib"
+    "lib": "lib",
+    "test": "test"
   }
 }
