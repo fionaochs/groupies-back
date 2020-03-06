@@ -55,7 +55,10 @@ const ensureAuth = require('./lib/auth/ensure-auth.js');
 app.use('/api/me', ensureAuth);
 
 app.get('/api/concerts', async(req, res) => {
-    const data = await request.get(`https://app.ticketmaster.com/discovery/v2/events.json?countryCode=US&keyword=concert&apikey=${process.env.TICKETMASTER_KEY}`);
+    const keyword = req.query.keyword ? req.query.keyword : '';
+    const city = req.query.city ? req.query.city : '';
+    console.log(req.query);
+    const data = await request.get(`https://app.ticketmaster.com/discovery/v2/events.json?countryCode=US&keyword=${keyword}&apikey=${process.env.TICKETMASTER_KEY}&sort=date,asc&city=${city}&classificationName=Music`);
     res.json(data.body);
 });
 
@@ -126,16 +129,18 @@ app.get('/api/me/saved', async(req, res) => {
 
 app.post('/api/me/saved', async(req, res) => {
     try {
+        console.log(req.body);
         const newSaved = await client.query(`
-            INSERT into saved (user_id, name, images, genre, start_date, tickets_url, city, state, price_min, price_max, lat, long)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+            INSERT into saved (user_id, name, images, genre, start_date, tickets_url, city, state, price_min, price_max, lat, long, tm_id)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
             RETURNING *;
         `,
-        [req.userId, req.body.name, req.body.images[1], req.body.classifications[0].genre.name, req.body.dates.start.localDate, req.body.url, req.body.venues[0].city.name, req.body.venues[0].state.name, req.body.priceRanges[0].min, req.body.priceRanges[0].max, req.body.venues[0].location.longitude, req.body.venues[0].location.latitude]);
+        [req.userId, req.body.name, req.body.images, req.body.genre, req.body.start_date, req.body.tickets_url, req.body.city, req.body.state, req.body.price_min, req.body.price_max, req.body.longitude, req.body.latitude, req.body.tm_id]);
         res.json(newSaved.rows[0]);
     }
     catch (err) {
         console.log(err);
+        if (err.constraint === 'saved_user_id_tm_id_key') { res.send('Already in saved!'); }
         res.status(500).json({
             error: err.message || err
         });
