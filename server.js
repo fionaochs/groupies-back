@@ -102,6 +102,12 @@ app.get('/concert', async(req, res, next) => {
         next(err);
     }
 });
+
+app.get('/api/saved/:id', async(req, res) => {
+    const data = await request.get(`https://app.ticketmaster.com/discovery/v2/events/${req.params.id}?apikey=${process.env.TICKETMASTER_KEY}`);
+    res.json(data.body);
+});
+
 app.get('/api/me/saved', async(req, res) => {
     try {
         const saved = await client.query(`
