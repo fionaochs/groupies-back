@@ -20,8 +20,7 @@ client.connect();
 const PORT = process.env.PORT || 3000;
 const request = require('superagent');
 
-
-
+const TICKETMASTER_URL = 'https://app.ticketmaster.com/discovery/v2/events';
 
 
 // Auth Routes
@@ -58,12 +57,12 @@ app.get('/api/concerts', async(req, res) => {
     const keyword = req.query.keyword ? req.query.keyword : '';
     const city = req.query.city ? req.query.city : '';
     console.log(req.query);
-    const data = await request.get(`https://app.ticketmaster.com/discovery/v2/events.json?countryCode=US&keyword=${keyword}&apikey=${process.env.TICKETMASTER_KEY}&sort=date,asc&city=${city}&classificationName=Music`);
+    const data = await request.get(`${TICKETMASTER_URL}.json?countryCode=US&keyword=${keyword}&apikey=${process.env.TICKETMASTER_KEY}&sort=date,asc&city=${city}&classificationName=Music`);
     res.json(data.body);
 });
 
 app.get('/api/concerts/:id', async(req, res) => {
-    const data = await request.get(`https://app.ticketmaster.com/discovery/v2/events/${req.params.id}?apikey=${process.env.TICKETMASTER_KEY}`);
+    const data = await request.get(`${TICKETMASTER_URL}/${req.params.id}?apikey=${process.env.TICKETMASTER_KEY}`);
     res.json(data.body);
 });
 let lat;
@@ -90,7 +89,7 @@ app.get('/location', async(req, respond, next) => {
 
 
 const getConcertData = async(lat, long) => {
-    const concertData = await request.get(`https://app.ticketmaster.com/discovery/v2/events.json?countryCode=US&keyword=concert&apikey=${process.env.TICKETMASTER_KEY}/${lat},${long}`);
+    const concertData = await request.get(`${TICKETMASTER_URL}.json?countryCode=US&keyword=concert&apikey=${process.env.TICKETMASTER_KEY}/${lat},${long}`);
     return concertData.body.daily.data.map(concert => {
         return {
             name: concert.name,
@@ -129,7 +128,20 @@ app.post('/api/me/saved', async(req, res) => {
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
             RETURNING *;
         `,
-        [req.userId, req.body.name, req.body.images, req.body.genre, req.body.start_date, req.body.tickets_url, req.body.city, req.body.state, req.body.price_min, req.body.price_max, req.body.longitude, req.body.latitude, req.body.tm_id]);
+        [req.userId,
+            req.body.name,
+            req.body.images,
+            req.body.genre,
+            req.body.start_date,
+            req.body.tickets_url,
+            req.body.city,
+            req.body.state,
+            req.body.price_min,
+            req.body.price_max,
+            req.body.longitude,
+            req.body.latitude,
+            req.body.tm_id,
+        ]);
         res.json(newSaved.rows[0]);
     }
     catch (err) {
